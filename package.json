@@ -4,7 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
-    "@notionhq/client": "^0.4.11"
+    "@notionhq/client": "^0.4.11",
+    "dotenv": "^10.0.0"
   },
   "scripts": {
     "start": "node index.js"
