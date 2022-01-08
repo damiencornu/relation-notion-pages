@@ -1,65 +1,37 @@
 require('dotenv').config();
-const { Client } = require('@notionhq/client');
-
-const notion = new Client({ auth: process.env.NOTION_KEY });
+const { notion } = require('./shared');
+const { getPages } = require('./shared/database');
 
 const authorsDbId = process.env.NOTION_AUTHORS_DATABASE_ID;
 const titlesDbId = process.env.NOTION_TITLES_DATABASE_ID;
 
-const authors = [];
-const titles = [];
-
-async function getAuthors(cursor) {
-  console.log('Get Authors', { cursor });
+async function getAuthors() {
   try {
-    const response = await notion.databases.query({
-      database_id: authorsDbId,
-      sorts: [{ property: 'title', direction: 'ascending' }],
-      ...(Boolean(cursor) && { start_cursor: cursor }),
+    const authors = await getPages({
+      databaseId: authorsDbId,
+      modifier: (result) => ({
+        id: result.id,
+        name: result.properties.Nom.title[0].plain_text,
+      }),
     });
-
-    response.results.reduce((acc, current) => {
-      acc.push({
-        id: current.id,
-        name: current.properties.Nom.title[0].plain_text,
-      });
-      return acc;
-    }, authors);
-    console.log(authors.length, response.has_more);
-
-    if (response.has_more) {
-      await getAuthors(response.next_cursor);
-    } else {
-      console.log(`Finished with ${authors.length} response`);
-    }
+    return authors;
   } catch (error) {
     console.error('Error', error);
   }
 }
 
-async function getTitles(cursor) {
-  console.log('Get titles', { cursor });
+async function getTitles() {
   try {
-    const response = await notion.databases.query({
-      database_id: titlesDbId,
-      sorts: [{ property: 'title', direction: 'ascending' }],
-      ...(Boolean(cursor) && { start_cursor: cursor }),
+    const titles = await getPages({
+      databaseId: titlesDbId,
     });
-
-    titles.push(...response.results);
-
-    console.log(titles.length, response.has_more);
-    if (response.has_more) {
-      await getTitles(response.next_cursor);
-    } else {
-      console.log(`Finished with ${titles.length} response`);
-    }
+    return titles;
   } catch (error) {
     console.error('Error', error);
   }
 }
 
-async function linkTables() {
+async function linkTables({ authors, titles }) {
   console.log('Link Tables', titles.length, 'elements');
   titles.forEach(async (title) => {
     const titleAuthors =
@@ -95,11 +67,10 @@ async function linkTables() {
 }
 
 async function work() {
-  await getAuthors();
+  const authors = await getAuthors();
+  const titles = await getTitles();
 
-  await getTitles();
-
-  await linkTables();
+  await linkTables({ authors, titles });
 }
 
 work();
