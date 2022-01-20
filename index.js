@@ -1,6 +1,7 @@
 require('dotenv').config();
 const { notion } = require('./shared');
 const { getPages } = require('./shared/database');
+const { getPropertyByName } = require('./shared/properties');
 
 const authorsDbId = process.env.NOTION_AUTHORS_DATABASE_ID;
 const titlesDbId = process.env.NOTION_TITLES_DATABASE_ID;
@@ -11,12 +12,13 @@ async function getAuthors() {
       databaseId: authorsDbId,
       modifier: (result) => ({
         id: result.id,
-        name: result.properties.Nom.title[0].plain_text,
+        name: getPropertyByName(result, 'Nom'),
       }),
     });
     return authors;
   } catch (error) {
     console.error('Error', error);
+    return [];
   }
 }
 
@@ -28,15 +30,14 @@ async function getTitles() {
     return titles;
   } catch (error) {
     console.error('Error', error);
+    return [];
   }
 }
 
 async function linkTables({ authors, titles }) {
   console.log('Link Tables', titles.length, 'elements');
   titles.forEach(async (title) => {
-    const titleAuthors =
-      title.properties.Auteurs.rich_text[0]?.plain_text?.split(',');
-    console.log(titleAuthors);
+    const titleAuthors = getPropertyByName(title, 'Auteurs')?.split(',');
     const titleAuthorsIds = titleAuthors
       ?.map((author) => {
         const id = authors.find((a) => a.name === author)?.id;
@@ -62,6 +63,8 @@ async function linkTables({ authors, titles }) {
         console.log(`Error updating title ${title.id}`);
         console.error(error);
       }
+    } else {
+      console.log(`No author found for '${getPropertyByName(title, 'titre')}'`);
     }
   });
 }
