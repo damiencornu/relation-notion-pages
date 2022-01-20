@@ -36,4 +36,4 @@ async function getPages({
   return pagesResults;
 }
 
-module.exports = { getPages };
+export { getPages };

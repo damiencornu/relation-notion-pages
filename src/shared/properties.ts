@@ -28,6 +28,4 @@ function getPropertyUnknownType(property) {
   }
 }
 
-module.exports = {
-  getPropertyByName,
-};
+export { getPropertyByName };

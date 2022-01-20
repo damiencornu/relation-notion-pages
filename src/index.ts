@@ -1,7 +1,7 @@
 require('dotenv').config();
-const { notion } = require('./shared');
-const { getPages } = require('./shared/database');
-const { getPropertyByName } = require('./shared/properties');
+import { notion } from './shared';
+import { getPages } from './shared/database';
+import { getPropertyByName } from './shared/properties';
 
 const authorsDbId = process.env.NOTION_AUTHORS_DATABASE_ID;
 const titlesDbId = process.env.NOTION_TITLES_DATABASE_ID;
