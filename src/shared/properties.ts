@@ -1,4 +1,6 @@
-function getPropertyByName(page, propertyName) {
+import { PostResult } from '@notion-stuff/v4-types';
+
+function getPropertyByName(page: PostResult, propertyName: string) {
   if (!page) {
     throw new Error('No page given');
   }
@@ -21,10 +23,16 @@ function getPropertyByName(page, propertyName) {
     : getPropertyUnknownType(propertyValue);
 }
 
-function getPropertyUnknownType(property) {
+function getPropertyUnknownType(property: {
+  type: 'text';
+  plain_text: 'string';
+}): string {
   switch (property.type) {
     case 'text':
       return property.plain_text;
+    default:
+      console.warn('Property of unknown type tried to be accessed');
+      return '';
   }
 }
 

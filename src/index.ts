@@ -1,4 +1,5 @@
 require('dotenv').config();
+import { PostResult, PropertyValueMap } from '@notion-stuff/v4-types';
 import { notion } from './shared';
 import { getPages } from './shared/database';
 import { getPropertyByName } from './shared/properties';
@@ -6,14 +7,10 @@ import { getPropertyByName } from './shared/properties';
 const authorsDbId = process.env.NOTION_AUTHORS_DATABASE_ID;
 const titlesDbId = process.env.NOTION_TITLES_DATABASE_ID;
 
-async function getAuthors() {
+async function getAuthors(): Promise<PostResult[]> {
   try {
     const authors = await getPages({
       databaseId: authorsDbId,
-      modifier: (result) => ({
-        id: result.id,
-        name: getPropertyByName(result, 'Nom'),
-      }),
     });
     return authors;
   } catch (error) {
@@ -22,9 +19,9 @@ async function getAuthors() {
   }
 }
 
-async function getTitles() {
+async function getTitles(): Promise<PostResult[]> {
   try {
-    const titles = await getPages({
+    const titles: PostResult[] = await getPages({
       databaseId: titlesDbId,
     });
     return titles;
@@ -34,20 +31,30 @@ async function getTitles() {
   }
 }
 
-async function linkTables({ authors, titles }) {
+async function linkTables({
+  authors,
+  titles,
+}: {
+  authors: PostResult[];
+  titles: PostResult[];
+}) {
   console.log('Link Tables', titles.length, 'elements');
   titles.forEach(async (title) => {
     const titleAuthors = getPropertyByName(title, 'Auteurs')?.split(',');
+    const authorsProperties = authors.map((author) => ({
+      id: author.id,
+      name: getPropertyByName(author, 'Nom'),
+    }));
     const titleAuthorsIds = titleAuthors
-      ?.map((author) => {
-        const id = authors.find((a) => a.name === author)?.id;
+      ?.map((author: string) => {
+        const id = authorsProperties.find((a) => a.name === author)?.id;
         return id
           ? {
               id,
             }
           : null;
       })
-      .filter((a) => a);
+      .filter((a: { id: string } | undefined) => a);
 
     if (Boolean(titleAuthorsIds)) {
       try {

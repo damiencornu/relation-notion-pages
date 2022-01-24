@@ -1,4 +1,6 @@
 const { notion } = require('./index');
+import { PostResult } from '@notion-stuff/v4-types';
+import { QueryDatabaseResponse } from '@notionhq/client/build/src/api-endpoints';
 
 async function getPages({
   databaseId,
@@ -6,22 +8,19 @@ async function getPages({
   pagesResults = [],
   cursor = null,
   getAll = true,
-  modifier = null,
-}) {
-  const response = await notion.databases.query({
+}: {
+  databaseId: string;
+  sorts?: [{ property: string; direction: 'ascending' | 'descending' }];
+  pagesResults?: Array<any>;
+  cursor?: string;
+  getAll?: boolean;
+}): Promise<PostResult[]> {
+  const response: QueryDatabaseResponse = await notion.databases.query({
     database_id: databaseId,
     sorts,
     ...(Boolean(cursor) && { start_cursor: cursor }),
   });
-
-  if (Boolean(modifier)) {
-    response.results.reduce((acc, current) => {
-      acc.push(modifier(current));
-      return acc;
-    }, pagesResults);
-  } else {
-    pagesResults.push(...response.results);
-  }
+  pagesResults.push(...response.results);
 
   if (getAll && response.has_more) {
     return await getPages({
@@ -30,7 +29,6 @@ async function getPages({
       pagesResults,
       cursor: response.next_cursor,
       getAll,
-      modifier,
     });
   }
   return pagesResults;
