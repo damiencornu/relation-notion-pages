@@ -1,28 +1,34 @@
-# Relation Notion Pages
+This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-While this repo _now_ only works for my specific use case I'm working on making it more modular and therefore reusable by others.
+## Getting Started
 
----
+First, run the development server:
 
-## Intro
+```bash
+npm run dev
+# or
+yarn dev
+```
 
-Aim of this program is to link entries from two pages in Notion. When importing entries from another data source in Notion from csv you will loose the link you might have done in another program.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-This tool will read all entries for two pages, building indexes on the fly and then will link all the data on the built-in `relation` type.
+You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
 
-## Bird-eye view of specific use case
+[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
 
-This repo works with two Notion pages: Titles and Authors.
-Each Title (/book) is written by one or more author (sometimes left blank).
+The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
 
-When imported as `.csv` into Notion the titles' authors are filled as `text` type and not as a `relation` type. By creating an extra column on the Titles page of type `relation` and by running this script the Titles entries will get all the authors as `text` and add the author as a `relation` field.
+## Learn More
 
-## Tech
+To learn more about Next.js, take a look at the following resources:
 
-Built in JS you need to have [Node (and NPM)](https://nodejs.org/en/download/) installed on your machine.
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-Then you need to configure this repository with your own keys; duplicate `.env.template` and rename it `.env`. You will need to get your own [Notion API key](https://developers.notion.com/docs#step-1-create-an-integration) you need to follow through steps 1 & 2 to get all the required environment variables.
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
 
-As long as your columns are named like mine this script will links pages from your books and titles together. This part is being worked on so it's more modular.
+## Deploy on Vercel
 
-Use `yarn start` in your terminal from this repo's root.
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
